@@ -1,0 +1,19 @@
+int main(){
+   int i = 0, j = 10, k;
+  while(i == 0){i = 3;}
+  write(i);
+k = i + 1;
+ if(i > 2){
+     int m = i + 1;
+     write(m);
+     while(i < j){
+            write(i);
+            i = i + 1;
+     }
+ }
+ else{
+     int m = i + 1;
+     write(m);
+ }
+   return 0;
+}

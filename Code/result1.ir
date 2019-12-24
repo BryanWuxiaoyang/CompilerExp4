@@ -1,0 +1,26 @@
+FUNCTION main :
+v1 := #0
+v2 := #10
+LABEL L1 :
+IF v1 != #0 GOTO L3
+v1 := #3
+GOTO L1
+LABEL L3 :
+WRITE v1
+t3 := v1 + #1
+v3 := t3
+IF v1 <= #2 GOTO L5
+v4 := t3
+WRITE v4
+LABEL L6 :
+IF v1 >= v2 GOTO L8
+WRITE v1
+v1 := v1 + #1
+GOTO L6
+LABEL L8 :
+GOTO L9
+LABEL L5 :
+v5 := t3
+WRITE v5
+LABEL L9 :
+RETURN #0
