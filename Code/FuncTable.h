@@ -4,7 +4,7 @@
 #include "Type.h"
 
 struct _FuncTable_ {
-	ListHead head;
+	MyListHead head;
 };
 typedef struct _FuncTable_* FuncTable;
 
@@ -30,7 +30,7 @@ Func createFunc_raw() {
 	return (Func)malloc(sizeof(struct _Func_));
 }
 
-Func createFunc(const char* name, ListHead paramList, Type returnType) {
+Func createFunc(const char* name, MyListHead paramList, Type returnType) {
 	Func func = (Func)malloc(sizeof(struct _Func_));
 	if (func) {
 		func->name = (char*)malloc(sizeof(char) * (strlen(name) + 1));
@@ -44,7 +44,7 @@ Func createFunc(const char* name, ListHead paramList, Type returnType) {
 	return func;
 }
 
-void fillFunc(Func func, const char* name, ListHead paramList, Type returnType) {
+void fillFunc(Func func, const char* name, MyListHead paramList, Type returnType) {
 	strcpy(func->name, name);
 	func->paramList = paramList;
 	func->returnType = returnType;
@@ -54,7 +54,7 @@ void fillFunc(Func func, const char* name, ListHead paramList, Type returnType) 
 }
 
 Func findFunc(FuncTable table, const char* name) {
-	ListIterator handlerIt = MyList_createIterator(table->head);
+	MyListIterator handlerIt = MyList_createIterator(table->head);
 	Func res = NULL;
 	while (MyList_hasNext(handlerIt)) {
 		Func sym = (Func)MyList_getNext(handlerIt);
@@ -96,8 +96,8 @@ int isDefinedFunc(Func func) {
 }
 
 void initFuncTable() {
-	ListHead readParamList = MyList_createList();
-	ListHead writeParamList = MyList_createList();
+	MyListHead readParamList = MyList_createList();
+	MyListHead writeParamList = MyList_createList();
 	Sym writeSym = createSym("writeParam", integerType);
 	MyList_pushElem(writeParamList, writeSym);
 
@@ -111,11 +111,11 @@ void initFuncTable() {
 
 void printFuncTable() {
 	printf("func table:\n");
-	ListIterator handlerIt = MyList_createIterator(funcTable->head);
+	MyListIterator handlerIt = MyList_createIterator(funcTable->head);
 	while (MyList_hasNext(handlerIt)) {
 		Func func = (Func)MyList_getNext(handlerIt);
 		printf("\tname %s, return type %s, param list:\n", func->name, func->returnType->name);
-		ListIterator it2 = MyList_createIterator(func->paramList);
+		MyListIterator it2 = MyList_createIterator(func->paramList);
 		while (MyList_hasNext(it2)) {
 			Sym sym = (Sym)MyList_getNext(it2);
 			printf("\t\tsymbal %s, type %s, offset %d\n", sym->name, sym->type->name, sym->offset);

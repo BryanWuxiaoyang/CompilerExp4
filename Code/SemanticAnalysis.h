@@ -178,17 +178,17 @@ void SM_OptTag(Node node, char** ret_name);
 void SM_Tag(Node node, char** ret_name);
 void SM_VarDec(Node node, Type type, Sym* ret_var, ASTNodeHandler* ret_handler);
 void SM_FunDec(Node node, Type specType, int isDef);
-void SM_VarList(Node node, ListHead ret_list);
+void SM_VarList(Node node, MyListHead ret_list);
 void SM_ParamDec(Node node, Sym* ret_var, ASTNodeHandler* ret_handler);
-void SM_CompSt(Node node, Type returnType, ListHead nextList);
-void SM_StmtList(Node node, Type returnType, ListHead nextList);
-void SM_Stmt(Node node, Type returnType, ListHead nextList);
+void SM_CompSt(Node node, Type returnType, MyListHead nextList);
+void SM_StmtList(Node node, Type returnType, MyListHead nextList);
+void SM_Stmt(Node node, Type returnType, MyListHead nextList);
 void SM_DefList(Node node);
 void SM_Def(Node node);
 void SM_DecList(Node node, Type specType);
 void SM_Dec(Node node, Type specType, Sym* ret_var);
-void SM_Exp(Node node, ASTNodeHandler* ret_handler, ListHead trueList, ListHead falseList, int trueFall, int falseFall);
-void SM_Args(Node node, ListHead ret_handlerList);
+void SM_Exp(Node node, ASTNodeHandler* ret_handler, MyListHead trueList, MyListHead falseList, int trueFall, int falseFall);
+void SM_Args(Node node, MyListHead ret_handlerList);
 
 void semAnalysis(Node node) {
 	init();
@@ -243,7 +243,7 @@ void SM_ExtDef(Node node) {
 		Node funDecNode = node->child[1];
 		Node compStNode = node->child[2];
 		Type specType = NULL;
-		ListHead nextList = MyList_createList();
+		MyListHead nextList = MyList_createList();
 		
 		pushSymTable(createSymTable(FIELD_COMPST));
 		pushTypeTable(createTypeTable(FIELD_COMPST));
@@ -332,7 +332,7 @@ void SM_StructSpecifier(Node node, Type* ret_specType) {
 		pushSymTable(createSymTable(FIELD_STRUCT));
 		pushTypeTable(createTypeTable(FIELD_STRUCT));
 		SM_DefList(defListNode);
-		ListHead fieldList = getCurSymTable()->head;
+		MyListHead fieldList = getCurSymTable()->head;
 		popSymTable();
 		popTypeTable();
 
@@ -406,7 +406,7 @@ void SM_FunDec(Node node, Type specType, int isDef) {
 	testEnterPrint(node);
 #endif
 	char* name = NULL;
-	ListHead paramList = MyList_createList();
+	MyListHead paramList = MyList_createList();
 
 	if (node->expandNo == 1) {// ID LP VarList RP
 		Node idNode = node->child[0];
@@ -429,7 +429,7 @@ void SM_FunDec(Node node, Type specType, int isDef) {
 			declareFunc(func, node->lineno);
 
 			// insert params into local symTable
-			ListIterator handlerIt = MyList_createIterator(paramList);
+			MyListIterator handlerIt = MyList_createIterator(paramList);
 			while (MyList_hasNext(handlerIt)) {
 				Sym param = (Sym)MyList_getNext(handlerIt);
 				insertSym(getCurSymTable(), param);
@@ -451,7 +451,7 @@ void SM_FunDec(Node node, Type specType, int isDef) {
 #endif
 }
 
-void SM_VarList(Node node, ListHead ret_symList) {
+void SM_VarList(Node node, MyListHead ret_symList) {
 #ifdef TEST_MODE
 	testEnterPrint(node);
 #endif
@@ -511,7 +511,7 @@ void SM_ParamDec(Node node, Sym* ret_var, ASTNodeHandler* ret_handler) {
 #endif
 }
 
-void SM_CompSt(Node node, Type returnType, ListHead nextList) {
+void SM_CompSt(Node node, Type returnType, MyListHead nextList) {
 #ifdef TEST_MODE
 	testEnterPrint(node);
 #endif
@@ -527,14 +527,14 @@ void SM_CompSt(Node node, Type returnType, ListHead nextList) {
 #endif
 }
 
-void SM_StmtList(Node node, Type returnType, ListHead nextList) {
+void SM_StmtList(Node node, Type returnType, MyListHead nextList) {
 #ifdef TEST_MODE
 	testEnterPrint(node);
 #endif
 	if (node->expandNo == 1) {// Stmt StmtList
 		Node stmtNode = node->child[0];
 		Node stmtListNode = node->child[1];
-		ListHead tmpNextList = MyList_createList();
+		MyListHead tmpNextList = MyList_createList();
 
 		SM_Stmt(stmtNode, returnType, tmpNextList);
 
@@ -555,7 +555,7 @@ void SM_StmtList(Node node, Type returnType, ListHead nextList) {
 #endif
 }
 
-void SM_Stmt(Node node, Type returnType, ListHead nextList) {
+void SM_Stmt(Node node, Type returnType, MyListHead nextList) {
 #ifdef TEST_MODE
 	testEnterPrint(node);
 #endif
@@ -583,12 +583,12 @@ void SM_Stmt(Node node, Type returnType, ListHead nextList) {
 		Node expNode = node->child[2];
 		Node stmtNode = node->child[4];
 		ASTNodeHandler handler = NULL;
-		ListHead trueList = MyList_createList();
+		MyListHead trueList = MyList_createList();
 		SM_Exp(expNode, &handler, trueList, nextList, 1, 0);
 
 		if (isConstASTNode(getASTNode(handler)) && getConstInt(getConstValue(getASTNode(handler))) == 1) {
 			if (MyList_isEmpty(trueList) == 0) {
-				ListIterator it = MyList_createIterator(trueList);
+				MyListIterator it = MyList_createIterator(trueList);
 				while (MyList_hasNext(it)) {
 					InterCode code = (InterCode)MyList_getNext(it);
 					removeInterCode(code);
@@ -612,7 +612,7 @@ void SM_Stmt(Node node, Type returnType, ListHead nextList) {
 				int remove;
 			};
 			typedef struct _ConstVar_* ConstVar;
-			ListHead constList = MyList_createList();
+			MyListHead constList = MyList_createList();
 			AllASTNodeIterator it = createAllASTNodeIterator();
 			while (hasNextAllASTNode(it)) {
 				ASTNodeHandler handler = getNextAllASTNode(it);
@@ -631,7 +631,7 @@ void SM_Stmt(Node node, Type returnType, ListHead nextList) {
 
 #ifdef VAR_CONST_OPTMIZATION
 			// �����б��ı䳣��״̬�Ľڵ���Ϊ�ǳ���
-			ListIterator constIt = MyList_createIterator(constList);
+			MyListIterator constIt = MyList_createIterator(constList);
 			while (MyList_hasNext(constIt)) {
 				ConstVar constVar = (ConstVar)MyList_getNext(constIt);
 				if (isExistASTNode(constVar->handler) && isEqualConstValue(constVar->value, getASTNode(constVar->handler)->constValue) == 0) {
@@ -650,8 +650,8 @@ void SM_Stmt(Node node, Type returnType, ListHead nextList) {
 		Node expNode = node->child[2];
 		Node stmtNode1 = node->child[4];
 		Node stmtNode2 = node->child[6];
-		ListHead trueList = MyList_createList();
-		ListHead falseList = MyList_createList();
+		MyListHead trueList = MyList_createList();
+		MyListHead falseList = MyList_createList();
 		char* label1 = createName_label();
 		char* label2 = createName_label();
 		ASTNodeHandler handler = NULL;
@@ -662,7 +662,7 @@ void SM_Stmt(Node node, Type returnType, ListHead nextList) {
 			ConstValue value = getConstValue(getASTNode(handler));
 			if(getConstInt(value)){
 				if (MyList_isEmpty(trueList) == 0) {
-					ListIterator it = MyList_createIterator(trueList);
+					MyListIterator it = MyList_createIterator(trueList);
 					while (MyList_hasNext(it)) {
 						InterCode code = (InterCode)MyList_getNext(it);
 						removeInterCode(code);
@@ -670,7 +670,7 @@ void SM_Stmt(Node node, Type returnType, ListHead nextList) {
 					MyList_destroyIterator(it);
 				}
 				if (MyList_isEmpty(falseList) == 0) {
-					ListIterator it = MyList_createIterator(falseList);
+					MyListIterator it = MyList_createIterator(falseList);
 					while (MyList_hasNext(it)) {
 						InterCode code = (InterCode)MyList_getNext(it);
 						removeInterCode(code);
@@ -682,7 +682,7 @@ void SM_Stmt(Node node, Type returnType, ListHead nextList) {
 			}
 			else {
 				if (MyList_isEmpty(trueList) == 0) {
-					ListIterator it = MyList_createIterator(trueList);
+					MyListIterator it = MyList_createIterator(trueList);
 					while (MyList_hasNext(it)) {
 						InterCode code = (InterCode)MyList_getNext(it);
 						removeInterCode(code);
@@ -690,7 +690,7 @@ void SM_Stmt(Node node, Type returnType, ListHead nextList) {
 					MyList_destroyIterator(it);
 				}
 				if (MyList_isEmpty(falseList) == 0) {
-					ListIterator it = MyList_createIterator(falseList);
+					MyListIterator it = MyList_createIterator(falseList);
 					while (MyList_hasNext(it)) {
 						InterCode code = (InterCode)MyList_getNext(it);
 						removeInterCode(code);
@@ -714,7 +714,7 @@ void SM_Stmt(Node node, Type returnType, ListHead nextList) {
 				int remove;
 			};
 			typedef struct _ConstVar_* ConstVar;
-			ListHead constList = MyList_createList();
+			MyListHead constList = MyList_createList();
 			AllASTNodeIterator it = createAllASTNodeIterator();
 			while (hasNextAllASTNode(it)) {
 				ASTNodeHandler handler = getNextAllASTNode(it);
@@ -729,7 +729,7 @@ void SM_Stmt(Node node, Type returnType, ListHead nextList) {
 
 #ifdef SUB_EXP_OPTMIZATION
 			// �洢��ǰ���ӱ���ʽ�б�
-			ListHead backUpInnerTableList = getBackUpInnerTableList();
+			MyListHead backUpInnerTableList = getBackUpInnerTableList();
 #endif
 
 			pushInnerASTTable();
@@ -739,7 +739,7 @@ void SM_Stmt(Node node, Type returnType, ListHead nextList) {
 
 #ifdef VAR_CONST_OPTMIZATION
 			// ��ʱ�ָ��ڵ�ĳ�����״̬������������״̬�����ĵĽڵ�����Ԥɾ�����
-			ListIterator constIt = MyList_createIterator(constList);
+			MyListIterator constIt = MyList_createIterator(constList);
 			while (MyList_hasNext(constIt)) {
 				ConstVar constVar = (ConstVar)MyList_getNext(constIt);
 				if (isExistASTNode(constVar->handler) && isEqualConstValue(constVar->value, getASTNode(constVar->handler)->constValue) == 0) {
@@ -797,7 +797,7 @@ void SM_Stmt(Node node, Type returnType, ListHead nextList) {
 	} else if (node->expandNo == 6) {// WHILE LP Exp RP Stmt
 		Node expNode = node->child[2];
 		Node stmtNode = node->child[4];
-		ListHead trueList = MyList_createList();
+		MyListHead trueList = MyList_createList();
 		const char* label1 = createName_label();
 		const char* label2 = createName_label();
 		ASTNodeHandler handler = NULL;
@@ -838,7 +838,7 @@ void SM_Stmt(Node node, Type returnType, ListHead nextList) {
 
 		if (isConstASTNode(getASTNode(handler)) && getConstInt(getConstValue(getASTNode(handler))) == 0) {
 			// do nothing, remove label
-			ListIterator codeIt = MyList_createIterator(getInterCodeList());
+			MyListIterator codeIt = MyList_createIterator(getInterCodeList());
 			while (MyList_hasNext(codeIt)) {
 				InterCode code =(InterCode)MyList_getNext(codeIt);
 				if (code == code1) {
@@ -848,7 +848,7 @@ void SM_Stmt(Node node, Type returnType, ListHead nextList) {
 			}
 			MyList_destroyIterator(codeIt);
 
-			ListIterator nextListIt = MyList_createIterator(nextList);
+			MyListIterator nextListIt = MyList_createIterator(nextList);
 			while (MyList_hasNext(nextListIt)) {
 				InterCode nextListCode = (InterCode)MyList_getNext(nextListIt);
 				removeInterCode(nextListCode);
@@ -857,7 +857,7 @@ void SM_Stmt(Node node, Type returnType, ListHead nextList) {
 			MyList_clear(nextList);
 		}
 		else {
-			ListHead assignedHandlerList = MyList_createList();
+			MyListHead assignedHandlerList = MyList_createList();
 
 			pushInnerASTTable();
 			SM_Stmt(stmtNode, returnType, nextList);
@@ -986,7 +986,7 @@ void SM_Dec(Node node, Type specType, Sym* ret_var) {
 #endif
 }
 
-void SM_Exp(Node node, ASTNodeHandler* ret_handler, ListHead trueList, ListHead falseList, int trueFall, int falseFall) {
+void SM_Exp(Node node, ASTNodeHandler* ret_handler, MyListHead trueList, MyListHead falseList, int trueFall, int falseFall) {
 #ifdef TEST_MODE
 	testEnterPrint(node);
 #endif
@@ -1008,7 +1008,7 @@ void SM_Exp(Node node, ASTNodeHandler* ret_handler, ListHead trueList, ListHead 
 		Node expNode2 = node->child[2];
 		ASTNodeHandler handler1 = NULL;
 		ASTNodeHandler handler2 = NULL;
-		ListHead tmpTrueList = MyList_createList();
+		MyListHead tmpTrueList = MyList_createList();
 
 		SM_Exp(expNode1, &handler1, tmpTrueList, falseList, 1, 0);
 
@@ -1034,7 +1034,7 @@ void SM_Exp(Node node, ASTNodeHandler* ret_handler, ListHead trueList, ListHead 
 		ASTNodeHandler handler1 = NULL;
 		ASTNodeHandler handler2 = NULL;
 		
-		ListHead tmpFalseList = MyList_createList();
+		MyListHead tmpFalseList = MyList_createList();
 		SM_Exp(expNode1, &handler1, trueList, tmpFalseList, 0, 1);
 
 		if (MyList_isEmpty(tmpFalseList) == 0) {
@@ -1162,7 +1162,7 @@ void SM_Exp(Node node, ASTNodeHandler* ret_handler, ListHead trueList, ListHead 
 		Node idNode = node->child[0];
 		Node argsNode = node->child[2];
 		char* name = idNode->str_val;
-		ListHead argHandlerList = MyList_createList();
+		MyListHead argHandlerList = MyList_createList();
 		SM_Args(argsNode, argHandlerList);
 		Func func = findFunc_all(name);
 		
@@ -1174,7 +1174,7 @@ void SM_Exp(Node node, ASTNodeHandler* ret_handler, ListHead trueList, ListHead 
 			appendInterCode(code);
 		}
 		else {
-			ListIterator handlerIt = MyList_createReverseIterator(argHandlerList);
+			MyListIterator handlerIt = MyList_createReverseIterator(argHandlerList);
 			while (MyList_hasPrev(handlerIt)) {
 				ASTNodeHandler handler = (ASTNodeHandler)MyList_getPrev(handlerIt);
 				appendInterCode(createInterCode(NULL, NULL, getASTNodeStr_r(getASTNode(handler)), ILOP_ARG));
@@ -1253,7 +1253,7 @@ void SM_Exp(Node node, ASTNodeHandler* ret_handler, ListHead trueList, ListHead 
 			assert(0);
 		}
 
-		ListIterator handlerIt = MyList_createIterator(structType->u.fieldList);
+		MyListIterator handlerIt = MyList_createIterator(structType->u.fieldList);
 		while (MyList_hasNext(handlerIt)) {
 			Sym sym = (Sym)MyList_getNext(handlerIt);
 			if (strcmp(sym->name, name) == 0) {
@@ -1307,7 +1307,7 @@ void SM_Exp(Node node, ASTNodeHandler* ret_handler, ListHead trueList, ListHead 
 #endif
 }
 
-void SM_Args(Node node, ListHead ret_handlerList) {
+void SM_Args(Node node, MyListHead ret_handlerList) {
 #ifdef TEST_MODE
 	testEnterPrint(node);
 #endif

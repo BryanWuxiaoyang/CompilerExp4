@@ -8,7 +8,7 @@
 
 
 struct _TypeTable_ {
-	ListHead head;
+	MyListHead head;
 	int type;
 };
 typedef struct _TypeTable_* TypeTable;
@@ -23,7 +23,7 @@ TypeTable createTypeTable(FieldType type) {
 	return table;
 }
 
-ListHead typeTableList;
+MyListHead typeTableList;
 TypeTable globalTypeTable;
 TypeTable curTypeTable;
 
@@ -36,7 +36,7 @@ void pushTypeTable(TypeTable table) {
 
 TypeTable popTypeTable() {
 	TypeTable table = (TypeTable)MyList_pop(typeTableList);
-	ListIterator handlerIt = MyList_createReverseIterator(typeTableList);
+	MyListIterator handlerIt = MyList_createReverseIterator(typeTableList);
 	curTypeTable = (TypeTable)MyList_getPrev(handlerIt);
 	MyList_destroyIterator(handlerIt);
 	return table;
@@ -51,7 +51,7 @@ TypeTable getGlobalTypeTable() {
 }
 
 Type findType(TypeTable table, const char* name) {
-	ListIterator handlerIt = MyList_createIterator(table->head);
+	MyListIterator handlerIt = MyList_createIterator(table->head);
 	Type res = NULL;
 	while (MyList_hasNext(handlerIt)) {
 		Type type = (Type)MyList_getNext(handlerIt);
@@ -65,7 +65,7 @@ Type findType(TypeTable table, const char* name) {
 }
 
 Type findType_all(const char* name) {
-	ListIterator handlerIt = MyList_createReverseIterator(typeTableList);
+	MyListIterator handlerIt = MyList_createReverseIterator(typeTableList);
 	Type res = NULL;
 	while (MyList_hasPrev(handlerIt)) {
 		TypeTable table = (TypeTable)MyList_getPrev(handlerIt);
@@ -93,12 +93,12 @@ void fillType_array(Type type, const char* name, Type elemType, int size) {
 	type->size = elemType->size * size;
 }
 
-void fillType_structure(Type type, const char* name, ListHead fieldList) {
+void fillType_structure(Type type, const char* name, MyListHead fieldList) {
 	type->name = (char*)malloc(sizeof(char) * (strlen(name) + 1));
 	strcpy(type->name, name);
 	type->kind = STRUCTURE;
 	type->u.fieldList = fieldList;
-	ListIterator handlerIt = MyList_createIterator(fieldList);
+	MyListIterator handlerIt = MyList_createIterator(fieldList);
 	int offset = 0;
 	while (MyList_hasNext(handlerIt)) {
 		Sym sym = (Sym)MyList_getNext(handlerIt);
@@ -125,7 +125,7 @@ Type createType_array(const char* name, Type elemType, int size) {
 	return type;
 }
 
-Type createType_structure(const char* name, ListHead fieldList) {
+Type createType_structure(const char* name, MyListHead fieldList) {
 	Type type = (Type)malloc(sizeof(struct _Type_));
 	if (type) {
 		fillType_structure(type, name, fieldList);
@@ -166,7 +166,7 @@ void initTypeTable() {
 
 void printTypeTable() {
 	printf("type tables:\n");
-	ListIterator handlerIt = MyList_createIterator(typeTableList);
+	MyListIterator handlerIt = MyList_createIterator(typeTableList);
 	while (MyList_hasNext(handlerIt)) {
 		TypeTable table = (TypeTable)MyList_getNext(handlerIt);
 		printf("\ttypetable: ");
@@ -177,7 +177,7 @@ void printTypeTable() {
 		}
 		printf("\n");
 
-		ListIterator it2 = MyList_createIterator(table->head);
+		MyListIterator it2 = MyList_createIterator(table->head);
 		while (MyList_hasNext(it2)) {
 			Type type = (Type)MyList_getNext(it2);
 			printf("\t\ttype %s, kind ", type->name);
@@ -189,7 +189,7 @@ void printTypeTable() {
 			}
 			else if (type->kind == STRUCTURE) {
 				printf("struct, fieldList:\n");
-				ListIterator it3 = MyList_createIterator(type->u.fieldList);
+				MyListIterator it3 = MyList_createIterator(type->u.fieldList);
 				while (MyList_hasNext(it3)) {
 					Sym sym = (Sym)MyList_getNext(it3);
 					printf("\t\t\tsymbal %s, type %s, offset %d\n", sym->name, sym->type->name, sym->offset);

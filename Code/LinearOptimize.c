@@ -162,7 +162,7 @@ void processCode(InterCode code,int lineno,UniNodeList* symList){
     }
 }
 
-void deleteUselessCode(UniNodeList* symList,ListIterator it){
+void deleteUselessCode(UniNodeList* symList,MyListIterator it){
     //情况1：无效代码，给了个变量赋值或计算，后面压根没用它
     UniNodeList* uselessLine=createUniNodeList();
     for(UniNode* cur=symList->head;cur!=symList->rear;cur=cur->next){
@@ -198,7 +198,7 @@ void deleteUselessCode(UniNodeList* symList,ListIterator it){
 	}
 }
 
-void processUselessCode(UniNodeList* symList,ListIterator it){
+void processUselessCode(UniNodeList* symList,MyListIterator it){
     //情况2：无效中间变量，给变量t赋值为a，a在后面没被修改，用t参与计算或赋值
     //情况3：类似情况2，给变量t计算为一个东西，参与计算的变量在后面没被修改，又把t赋值给另一个变量
     int lineno=0;
@@ -212,7 +212,7 @@ void processUselessCode(UniNodeList* symList,ListIterator it){
          int i;
          SymChecker* arg1Sym;
          SymChecker* targetSym;
-         ListIterator runIt=it;
+         MyListIterator runIt=it;
         switch(code->op){
             case ILOP_ASSIGN:
                 targetSym=searchSymList(target,symList);
@@ -234,7 +234,7 @@ void processUselessCode(UniNodeList* symList,ListIterator it){
     }
 }
 
-void processUselessCode2(ListIterator it){
+void processUselessCode2(MyListIterator it){
     while(MyList_hasNext(it)){
         InterCode code=(InterCode)MyList_getNext(it);
         InterCode curCode;
@@ -251,7 +251,7 @@ void processUselessCode2(ListIterator it){
     }
 }
 
-UniNodeList* getCodeList(ListIterator it){
+UniNodeList* getCodeList(MyListIterator it){
     UniNodeList* symList=createUniNodeList();
     int cur=0;
 	while (MyList_hasNext(it)) {
@@ -262,7 +262,7 @@ UniNodeList* getCodeList(ListIterator it){
 }
 
 void optimizeInterCodeLinear() {
-	ListIterator it = MyList_createIterator(interCodeList);
+	MyListIterator it = MyList_createIterator(interCodeList);
     UniNodeList* symList=getCodeList(it);
     it=MyList_createIterator(interCodeList);
     //processUselessCode(symList,it);//处理情况2和3，过程中不会删除代码，只会修改，处理之后会产生一些无效的赋值或计算；但是这样没有考虑循环和分支，有不少问题

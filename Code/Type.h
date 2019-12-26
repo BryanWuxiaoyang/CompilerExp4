@@ -9,7 +9,7 @@ struct _Type_ {
 	union {
 		int basic;
 		struct { struct _Type_* elemType; int size; } array;
-		ListHead fieldList;
+		MyListHead fieldList;
 		struct _Type_* targetType;
 	} u;
 	int size;

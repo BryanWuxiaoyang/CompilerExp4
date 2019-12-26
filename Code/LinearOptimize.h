@@ -173,7 +173,7 @@ void processCode(InterCode code,int lineno,UniNodeList* symList){
 }
 
 
-void deleteUselessCode(UniNodeList* symList,ListIterator it){
+void deleteUselessCode(UniNodeList* symList,MyListIterator it){
     //情况1：无效代码，给了个变量赋值或计算，后面压根没用它
     UniNodeList* uselessLine=createUniNodeList();
     for(UniNode* cur=symList->head;cur!=symList->rear;cur=cur->next){
@@ -209,7 +209,7 @@ void deleteUselessCode(UniNodeList* symList,ListIterator it){
 	}
 }
 
-void deleteUselessCode2(UniNodeList* symList,ListIterator it){
+void deleteUselessCode2(UniNodeList* symList,MyListIterator it){
     UniNodeList* uselessLine=createUniNodeList();
     int lineno=0;
     while(MyList_hasNext(it)){
@@ -229,7 +229,7 @@ void deleteUselessCode2(UniNodeList* symList,ListIterator it){
     }
 }
 
-void processUselessCode(UniNodeList* symList,ListIterator it){
+void processUselessCode(UniNodeList* symList,MyListIterator it){
     //情况2：无效中间变量，给变量t赋值为a，a在后面没被修改，用t参与计算或赋值
     //情况3：类似情况2，给变量t计算为一个东西，参与计算的变量在后面没被修改，又把t赋值给另一个变量
     int lineno=0;
@@ -243,7 +243,7 @@ void processUselessCode(UniNodeList* symList,ListIterator it){
         int i;
         SymChecker* arg1Sym;
         SymChecker* targetSym;
-        ListIterator runIt=it;
+        MyListIterator runIt=it;
         switch(code->op){
             case ILOP_ASSIGN:
                 targetSym=searchSymList(target,symList);
@@ -265,7 +265,7 @@ void processUselessCode(UniNodeList* symList,ListIterator it){
     }
 }
 
-void processUselessCode2(ListIterator it,UniNodeList* symList){
+void processUselessCode2(MyListIterator it,UniNodeList* symList){
     int lineno=0;
     while(MyList_hasNext(it)){
         InterCode code=(InterCode)MyList_getNext(it);
@@ -300,7 +300,7 @@ void processUselessCode2(ListIterator it,UniNodeList* symList){
     }
 }
 
-UniNodeList* getCodeList(ListIterator it,int lineno){
+UniNodeList* getCodeList(MyListIterator it,int lineno){
     UniNodeList* symList=createUniNodeList();
     int cur=0;
 	while (MyList_hasNext(it)&&cur<lineno) {
@@ -373,7 +373,7 @@ void optimizeBlocks(UniNodeList* blockList){
     }
 }
 
-UniNodeList* getBlockList(ListIterator it){
+UniNodeList* getBlockList(MyListIterator it){
     UniNodeList* blockList;
     UniNodeList* allBlockList=createUniNodeList();
     BaseBlock* curBlock;
@@ -415,9 +415,9 @@ UniNodeList* getBlockList(ListIterator it){
     return allBlockList;
 }
 
-ListIterator searchLabelList(char* name,UniNodeList* list){
+MyListIterator searchLabelList(char* name,UniNodeList* list){
     for(UniNode* cur=list->head;cur!=list->rear;cur=cur->next){
-        ListIterator it=(ListIterator)(cur->value);
+        MyListIterator it=(MyListIterator)(cur->value);
         InterCode code=(InterCode)MyList_peekNext(it);
         if(strcmp(name,code->target)==0)
             return cur->value;
@@ -425,9 +425,9 @@ ListIterator searchLabelList(char* name,UniNodeList* list){
     return NULL;
 }
 
-void processLoop(ListIterator it){
+void processLoop(MyListIterator it){
     //it指向label之前的位置
-    ListIterator it2=MyList_copyIterator(it);
+    MyListIterator it2=MyList_copyIterator(it);
     InterCode label=(InterCode)MyList_peekNext(it2);
     char* labelName=label->target;
     int lineno=0;
@@ -487,19 +487,19 @@ void processLoop(ListIterator it){
     }
 }
 
-void optimizeLoop(ListIterator it){
+void optimizeLoop(MyListIterator it){
     int lineno=0;
     UniNodeList* labelList=createUniNodeList();
     while(MyList_hasNext(it)){
         InterCode code=(InterCode)MyList_getNext(it);
         char* target = code->target;
         if(code->op==ILOP_LABEL){
-            ListIterator it2=MyList_copyIterator(it);
+            MyListIterator it2=MyList_copyIterator(it);
             MyList_getPrev(it2);
             addUniNode(labelList,it2);
         }
         else if(code->op==ILOP_GOTO){
-            ListIterator gotoLabel=searchLabelList(target,labelList);
+            MyListIterator gotoLabel=searchLabelList(target,labelList);
             if(gotoLabel!=NULL)
                 processLoop(gotoLabel);
         }
@@ -508,7 +508,7 @@ void optimizeLoop(ListIterator it){
 }
 
 void optimizeInterCodeLinear(){	
-    ListIterator it = MyList_createIterator(interCodeList);
+    MyListIterator it = MyList_createIterator(interCodeList);
     optimizeLoop(it);
     it=MyList_createIterator(interCodeList);
     //processUselessCode(symList,it);//处理情况2和3，过程中不会删除代码，只会修改，处理之后会产生一些无效的赋值或计算；但是这样没有考虑循环和分支，有不少问题

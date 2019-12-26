@@ -3,7 +3,7 @@
 #include "MyList.h"
 struct _Func_ {
 	char* name;
-	ListHead paramList;
+	MyListHead paramList;
 	Type returnType;
 	int state; // 0: unimplemented, 1: implemented
 	int decLineno;

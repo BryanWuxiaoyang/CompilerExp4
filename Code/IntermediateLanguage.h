@@ -78,10 +78,10 @@ InterCode createInterCode(const char* arg1,const char* arg2, const char* target,
 	return code;
 }
 
-ListHead interCodeList;
+MyListHead interCodeList;
 
 struct _CodeIterator_ {
-	ListIterator handlerIt;
+	MyListIterator handlerIt;
 };
 typedef struct _CodeIterator_* CodeIterator;
 
@@ -105,7 +105,7 @@ InterCode getNextCode(CodeIterator handlerIt) {
 	return (InterCode)MyList_getNext(handlerIt->handlerIt);
 }
 
-ListHead getInterCodeList() {
+MyListHead getInterCodeList() {
 	return interCodeList;
 }
 
@@ -126,8 +126,8 @@ InterCode removeInterCode_next(CodeIterator handlerIt) {
 	return (InterCode)MyList_removeNext(handlerIt->handlerIt);
 }
 
-void backpatchCode(ListHead codeList, const char* label) {
-	ListIterator handlerIt = MyList_createIterator(codeList);
+void backpatchCode(MyListHead codeList, const char* label) {
+	MyListIterator handlerIt = MyList_createIterator(codeList);
 	while (MyList_hasNext(handlerIt)) {
 		InterCode code = (InterCode)MyList_getNext(handlerIt);
 		code->target = label;
@@ -141,7 +141,7 @@ InterCode getLastCode() {
 
 int removeInterCode(InterCode code) {
 	int suc = 0;
-	ListIterator it = MyList_createIterator(getInterCodeList());
+	MyListIterator it = MyList_createIterator(getInterCodeList());
 	while (MyList_hasNext(it)) {
 		InterCode code2 = (InterCode)MyList_getNext(it);
 		if (code == code2) {
@@ -196,7 +196,7 @@ void printInterCode(InterCode code, FILE* file, char* buffer) {
 }
 
 void printInterCodeList(FILE* file, char* buffer) {
-	ListIterator handlerIt = MyList_createIterator(interCodeList);
+	MyListIterator handlerIt = MyList_createIterator(interCodeList);
 	while (MyList_hasNext(handlerIt)) {
 		InterCode code = (InterCode)MyList_getNext(handlerIt);
 		printInterCode(code, file, buffer);

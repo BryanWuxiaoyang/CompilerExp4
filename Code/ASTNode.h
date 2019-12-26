@@ -38,7 +38,7 @@ struct _ASTNode_ {
 	struct _ASTNode_* lc;
 	struct _ASTNode_* rc;
 
-	ListHead parents; 
+	MyListHead parents; 
 	ConstValue constValue;  
 
 	int accessTag;

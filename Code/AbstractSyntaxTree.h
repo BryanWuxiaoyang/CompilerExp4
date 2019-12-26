@@ -21,18 +21,18 @@
 #define AST_MAX_HEIGHT 10
 
 struct _ASTTable_ {
-	ListHead handlerList;
+	MyListHead handlerList;
 };
 typedef struct _ASTTable_* ASTTable;
 
 struct _LeafASTNodeIterator_ {
-	ListIterator handlerIt;
+	MyListIterator handlerIt;
 };
 typedef struct _LeafASTNodeIterator_* LeafASTNodeIterator;
 
 struct _InnerASTNodeIterator_ {
-	ListIterator tableListIt;
-	ListIterator handlerIt;
+	MyListIterator tableListIt;
+	MyListIterator handlerIt;
 };
 typedef struct _InnerASTNodeIterator_* InnerASTNodeIterator;
 
@@ -43,7 +43,7 @@ struct _AllASTNodeIterator_ {
 typedef struct _AllASTNodeIterator_* AllASTNodeIterator;
 
 ASTTable leafASTTable;
-ListHead innerASTTableList;
+MyListHead innerASTTableList;
 
 LeafASTNodeIterator createLeafASTNodeIterator() {
 	LeafASTNodeIterator handlerIt = (LeafASTNodeIterator)malloc(sizeof(struct _LeafASTNodeIterator_));
@@ -203,20 +203,20 @@ ConstValue getConstValue(ASTNode node) {
 	return node->constValue;
 }
 
-ListHead getASTNodeList(int height) {
+MyListHead getASTNodeList(int height) {
 	if (height == 0) return getLeafASTTable()->handlerList;
 	else return getCurInnerASTTable()->handlerList;
 }
 
-ListHead getBackUpInnerTableList() {// ��ȡ�ӱ���ʽ�������屸�ݣ��Թ�ifelse�ķ�֧ʹ��
-	ListHead resTableList = MyList_createList();
-	ListIterator tableIt = MyList_createIterator(innerASTTableList);
+MyListHead getBackUpInnerTableList() {// ��ȡ�ӱ���ʽ�������屸�ݣ��Թ�ifelse�ķ�֧ʹ��
+	MyListHead resTableList = MyList_createList();
+	MyListIterator tableIt = MyList_createIterator(innerASTTableList);
 	while (MyList_hasNext(tableIt)) {
 		ASTTable table = (ASTTable)MyList_getNext(tableIt);
 		ASTTable resTable = createASTTable();
 		MyList_pushElem(resTableList, resTable);
 
-		ListIterator handlerIt = MyList_createIterator(table->handlerList);
+		MyListIterator handlerIt = MyList_createIterator(table->handlerList);
 		while (MyList_hasNext(handlerIt)) {
 			ASTNodeHandler handler = (ASTNodeHandler)MyList_getNext(handlerIt);
 			MyList_pushElem(resTable->handlerList, handler);
@@ -227,14 +227,14 @@ ListHead getBackUpInnerTableList() {// ��ȡ�ӱ���ʽ������
 	return resTableList;
 }
 
-void switchInnerTableList(ListHead* tableList) {// ��tableList�ı���Ϊ��ǰ�ӱ���ʽ��������֮ǰ���ӱ���ʽ������tableList
-	ListHead tmp = innerASTTableList;
+void switchInnerTableList(MyListHead* tableList) {// ��tableList�ı���Ϊ��ǰ�ӱ���ʽ��������֮ǰ���ӱ���ʽ������tableList
+	MyListHead tmp = innerASTTableList;
 	innerASTTableList = *tableList;
 	*tableList = tmp;
 }
 
-void destroyInnerTableList(ListHead tableList) {
-	ListIterator tableIt = MyList_createIterator(tableList);
+void destroyInnerTableList(MyListHead tableList) {
+	MyListIterator tableIt = MyList_createIterator(tableList);
 	while (MyList_hasNext(tableIt)) {
 		ASTTable table = (ASTTable)MyList_getNext(tableIt);
 		destroyASTTable(table);
@@ -244,20 +244,20 @@ void destroyInnerTableList(ListHead tableList) {
 	MyList_destroyList(tableList);
 }
 
-void mergeInnerTableList_intersect(ListHead tableList) {// ���ý����ķ�ʽ���ϲ�����tableList
-	ListIterator dstTableIt = MyList_createIterator(innerASTTableList);
-	ListIterator srcTableIt = MyList_createIterator(tableList);
+void mergeInnerTableList_intersect(MyListHead tableList) {// ���ý����ķ�ʽ���ϲ�����tableList
+	MyListIterator dstTableIt = MyList_createIterator(innerASTTableList);
+	MyListIterator srcTableIt = MyList_createIterator(tableList);
 
 	while (MyList_hasNext(dstTableIt) && MyList_hasNext(srcTableIt)) {
 		ASTTable dstTable = (ASTTable)MyList_getNext(dstTableIt);
 		ASTTable srcTable = (ASTTable)MyList_getNext(srcTableIt);
 
-		ListIterator dstHandlerIt = MyList_createIterator(dstTable->handlerList);
+		MyListIterator dstHandlerIt = MyList_createIterator(dstTable->handlerList);
 		while (MyList_hasNext(dstHandlerIt)) {
 			ASTNodeHandler dstHandler = (ASTNodeHandler)MyList_getNext(dstHandlerIt);
 			int suc = 0;
 
-			ListIterator srcHandlerIt = MyList_createIterator(srcTable->handlerList);
+			MyListIterator srcHandlerIt = MyList_createIterator(srcTable->handlerList);
 			while (MyList_hasNext(srcHandlerIt)) {
 				ASTNodeHandler srcHandler = (ASTNodeHandler)MyList_getNext(srcHandlerIt);
 				
@@ -280,7 +280,7 @@ void mergeInnerTableList_intersect(ListHead tableList) {// ���ý����
 }
 
 void clearInnerASTNodes() { // ɾ���ӱ���ʽ�ڵ�handler����ɾ��table
-	ListIterator tableIt = MyList_createIterator(innerASTTableList);
+	MyListIterator tableIt = MyList_createIterator(innerASTTableList);
 	while (MyList_hasNext(tableIt)) {
 		ASTTable table = (ASTTable)MyList_getNext(tableIt);
 		MyList_clear(table->handlerList);
@@ -356,12 +356,12 @@ ASTNodeHandler findASTNode_op(OP op, ASTNode lc, ASTNode rc) {
 }
 
 void insertASTLeafNode(ASTNodeHandler handler) {
-	ListHead list = getLeafASTTable()->handlerList;
+	MyListHead list = getLeafASTTable()->handlerList;
 	MyList_pushElem(list, handler);
 }
 
 void insertASTInnerNode(ASTNodeHandler handler) {
-	ListHead list = getCurInnerASTTable()->handlerList;
+	MyListHead list = getCurInnerASTTable()->handlerList;
 	MyList_pushElem(list, handler);
 }
 
@@ -405,7 +405,7 @@ int isConstCond(OP op, ASTNode node1, ASTNode node2) {
 }
 
 void clearParents(ASTNode node) { // ����ӱ���ʽ��¼����������ڵ㱾��
-	ListIterator parents_it = MyList_createIterator(node->parents);
+	MyListIterator parents_it = MyList_createIterator(node->parents);
 	while (MyList_hasNext(parents_it)) {
 		ASTNode pNode = (ASTNode)MyList_getNext(parents_it);
 		
@@ -653,7 +653,7 @@ void printASTTree(ASTNode node) {
 
 void printASTNodes() {
 	printf("astNodes:\n");
-	ListIterator handlerIt = MyList_createIterator(getLeafASTTable()->handlerList);
+	MyListIterator handlerIt = MyList_createIterator(getLeafASTTable()->handlerList);
 	while (MyList_hasNext(handlerIt)) {
 		ASTNodeHandler handler = (ASTNodeHandler)MyList_getNext(handlerIt);
 		printASTNode(getASTNode(handler));

@@ -49,7 +49,7 @@ ASTNodeHandler copyASTNodeHandler(ASTNodeHandler handler) {
 	return handler;
 }
 
-ASTNode createASTNode(int height, ASTNodeType type, ASTNodeValue value, char* name, ASTNode lc, ASTNode rc, ListHead parents, Type varType) {
+ASTNode createASTNode(int height, ASTNodeType type, ASTNodeValue value, char* name, ASTNode lc, ASTNode rc, MyListHead parents, Type varType) {
 #ifdef ASTNODE_MEMORY_MANAGE_ENABLE
 	ASTNode node = mallocASTNodeSpace();
 #else

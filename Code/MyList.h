@@ -2,23 +2,23 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-struct _ListNode_ {
+struct _MyListNode_ {
 	void* elem;
-	struct _ListNode_* next;
-	struct _ListNode_* prev;
+	struct _MyListNode_* next;
+	struct _MyListNode_* prev;
 };
-typedef struct _ListNode_* ListNode;
-typedef struct _ListNode_* ListHead;
+typedef struct _MyListNode_* MyListNode;
+typedef struct _MyListNode_* MyListHead;
 
-struct _ListIterator_ {
-	ListHead head;
-	ListNode next;
-	ListNode prev;
+struct _MyListIterator_ {
+	MyListHead head;
+	MyListNode next;
+	MyListNode prev;
 };
-typedef struct _ListIterator_* ListIterator;
+typedef struct _MyListIterator_* MyListIterator;
 
-ListIterator MyList_createIterator(ListHead head) {
-	ListIterator handlerIt = (ListIterator)malloc(sizeof(struct _ListIterator_));
+MyListIterator MyList_createIterator(MyListHead head) {
+	MyListIterator handlerIt = (MyListIterator)malloc(sizeof(struct _MyListIterator_));
 	if (handlerIt) {
 		handlerIt->head = head;
 		handlerIt->next = head->next;
@@ -27,8 +27,8 @@ ListIterator MyList_createIterator(ListHead head) {
 	return handlerIt;
 }
 
-ListIterator MyList_createReverseIterator(ListHead head) {
-	ListIterator handlerIt = (ListIterator)malloc(sizeof(struct _ListIterator_));
+MyListIterator MyList_createReverseIterator(MyListHead head) {
+	MyListIterator handlerIt = (MyListIterator)malloc(sizeof(struct _MyListIterator_));
 	if(handlerIt) {
 		handlerIt->head = head;
 		handlerIt->next = head;
@@ -37,8 +37,8 @@ ListIterator MyList_createReverseIterator(ListHead head) {
 	return handlerIt;
 }
 
-ListIterator MyList_copyIterator(ListIterator srcIt){
-	ListIterator dstIt = (ListIterator)malloc(sizeof(struct _ListIterator_));
+MyListIterator MyList_copyIterator(MyListIterator srcIt){
+	MyListIterator dstIt = (MyListIterator)malloc(sizeof(struct _MyListIterator_));
 	if(dstIt){
 		dstIt->head = srcIt->head;
 		dstIt->prev = srcIt->prev;
@@ -47,45 +47,47 @@ ListIterator MyList_copyIterator(ListIterator srcIt){
 	return dstIt;
 }
 
-void* MyList_getNext(ListIterator handlerIt) {
+void* MyList_getNext(MyListIterator handlerIt) {
+	if (handlerIt->next == handlerIt->head) return NULL;
 	void* elem = handlerIt->next->elem;
 	handlerIt->prev = handlerIt->next;
 	handlerIt->next = handlerIt->next->next;
 	return elem;
 }
 
-void* MyList_peekNext(ListIterator handlerIt) {
+void* MyList_peekNext(MyListIterator handlerIt) {
 	return handlerIt->next->elem;
 }
 
-int MyList_hasNext(ListIterator handlerIt) {
+int MyList_hasNext(MyListIterator handlerIt) {
 	return (handlerIt->next == handlerIt->head) ? 0 : 1;
 }
 
-void* MyList_getPrev(ListIterator handlerIt) {
+void* MyList_getPrev(MyListIterator handlerIt) {
+	if (handlerIt->prev == handlerIt->head) return NULL;
 	void* elem = handlerIt->prev->elem;
 	handlerIt->next = handlerIt->prev;
 	handlerIt->prev = handlerIt->prev->prev;
 	return elem;
 }
 
-void* MyList_peekPrev(ListIterator handlerIt) {
+void* MyList_peekPrev(MyListIterator handlerIt) {
 	return handlerIt->prev->elem;
 }
 
-int MyList_hasPrev(ListIterator handlerIt) {
+int MyList_hasPrev(MyListIterator handlerIt) {
 	return (handlerIt->prev == handlerIt->head) ? 0 : 1;
 }
 
 
-void MyList_destroyIterator(ListIterator handlerIt) {
+void MyList_destroyIterator(MyListIterator handlerIt) {
 	free(handlerIt);
 }
 
 
 
-ListHead MyList_createList() {
-	ListHead head = (ListHead)malloc(sizeof(struct _ListNode_));
+MyListHead MyList_createList() {
+	MyListHead head = (MyListHead)malloc(sizeof(struct _MyListNode_));
 	if (head) {
 		head->elem = NULL;
 		head->next = head;
@@ -94,8 +96,8 @@ ListHead MyList_createList() {
 	return head;
 }
 
-ListNode MyList_wrapNode(void* elem) {
-	ListNode node = (ListNode)malloc(sizeof(struct _ListNode_));
+MyListNode MyList_wrapNode(void* elem) {
+	MyListNode node = (MyListNode)malloc(sizeof(struct _MyListNode_));
 	if (node) {
 		node->elem = elem;
 		node->next = node;
@@ -104,27 +106,27 @@ ListNode MyList_wrapNode(void* elem) {
 	return node;
 }
 
-void MyList_pushNode(ListHead head, ListNode node) {
+void MyList_pushNode(MyListHead head, MyListNode node) {
 	node->next = head;
 	node->prev = head->prev;
 	head->prev->next = node;
 	head->prev = node;
 }
 
-void MyList_pushElem(ListHead head, void* elem) {
+void MyList_pushElem(MyListHead head, void* elem) {
 	MyList_pushNode(head, MyList_wrapNode(elem));
 }
 
-int MyList_isEmpty(ListHead head) {
+int MyList_isEmpty(MyListHead head) {
 	return head->next == head ? 1 : 0;
 }
 
-void* MyList_pop(ListHead head) {
+void* MyList_pop(MyListHead head) {
 	void* elem = NULL;
 	if (MyList_isEmpty(head) == 0) {
-		ListNode p = head->prev;
+		MyListNode p = head->prev;
 		elem = p->elem;
-		ListNode q = head->prev->prev;
+		MyListNode q = head->prev->prev;
 		q->next = head;
 		head->prev = q;
 		free(p);
@@ -132,10 +134,10 @@ void* MyList_pop(ListHead head) {
 	return elem;
 }
 
-void* MyList_removePrev(ListIterator handlerIt) {
-	ListNode node1 = handlerIt->prev->prev;
-	ListNode node2 = handlerIt->prev;
-	ListNode node3 = handlerIt->next;
+void* MyList_removePrev(MyListIterator handlerIt) {
+	MyListNode node1 = handlerIt->prev->prev;
+	MyListNode node2 = handlerIt->prev;
+	MyListNode node3 = handlerIt->next;
 	node1->next = node3;
 	node3->prev = node1;
 	handlerIt->prev = node1;
@@ -143,10 +145,10 @@ void* MyList_removePrev(ListIterator handlerIt) {
 	return node2->elem;
 }
 
-void* MyList_removeNext(ListIterator handlerIt) {
-	ListNode node1 = handlerIt->prev;
-	ListNode node2 = handlerIt->next;
-	ListNode node3 = handlerIt->next->next;
+void* MyList_removeNext(MyListIterator handlerIt) {
+	MyListNode node1 = handlerIt->prev;
+	MyListNode node2 = handlerIt->next;
+	MyListNode node3 = handlerIt->next->next;
 	node1->next = node3;
 	node3->prev = node1;
 	handlerIt->prev = node1;
@@ -154,20 +156,20 @@ void* MyList_removeNext(ListIterator handlerIt) {
 	return node2->elem;
 }
 
-void MyList_clear(ListHead handlerList) {
-	ListNode p = handlerList->next;
+void MyList_clear(MyListHead handlerList) {
+	MyListNode p = handlerList->next;
 	while (p != handlerList) {
-		ListNode q = p;
+		MyListNode q = p;
 		p = p->next;
 		free(q);
 	}
 	handlerList->next = handlerList->prev = handlerList;
 }
 
-void MyList_insert(ListIterator handlerIt, void* elem) {
-	ListNode node1 = handlerIt->prev;
-	ListNode node2 = MyList_wrapNode(elem);
-	ListNode node3 = handlerIt->next;
+void MyList_insert(MyListIterator handlerIt, void* elem) {
+	MyListNode node1 = handlerIt->prev;
+	MyListNode node2 = MyList_wrapNode(elem);
+	MyListNode node3 = handlerIt->next;
 	node2->prev = node1;
 	node2->next = node3;
 	node1->next = node2;
@@ -176,26 +178,46 @@ void MyList_insert(ListIterator handlerIt, void* elem) {
 	handlerIt->next = node2;
 }
 
-void MyList_destroyList(ListHead handlerList) {
+void MyList_destroyList(MyListHead handlerList) {
 	MyList_clear(handlerList);
 	free(handlerList);
 }
 
-void* MyList_getBack(ListHead handlerList) {
+void* MyList_getBack(MyListHead handlerList) {
 	return handlerList->prev->elem;
 }
 
-void* MyList_getFront(ListHead handlerList) {
+void* MyList_getFront(MyListHead handlerList) {
 	return handlerList->next->elem;
 }
 
-void MyList_mergeList_intersect(ListHead dstList, ListHead srcList) {
-	ListIterator dstIt = MyList_createIterator(dstList);
+void MyList_pushFront(MyListHead list, void* elem) {
+	MyListNode node1 = list;
+	MyListNode node2 = list->next;
+	MyListNode insertNode = MyList_wrapNode(elem);
+	insertNode->prev = node1;
+	insertNode->next = node2;
+	node1->next = insertNode;
+	node2->prev = insertNode;
+}
+
+void* MyList_popFront(MyListHead list) {
+	MyListNode node1 = list;
+	MyListNode node2 = list->next->next;
+	MyListNode removeNode = list->next;
+	node1->next = node2;
+	node2->next = node1;
+	free(removeNode);
+	return removeNode->elem;
+}
+
+void MyList_mergeList_intersect(MyListHead dstList, MyListHead srcList) {
+	MyListIterator dstIt = MyList_createIterator(dstList);
 	while (MyList_hasNext(dstIt)) {
 		void* dstElem = MyList_getNext(dstIt);
 		int suc = 0;
 
-		ListIterator srcIt = MyList_createIterator(srcList);
+		MyListIterator srcIt = MyList_createIterator(srcList);
 		while (MyList_hasNext(srcIt)) {
 			void* srcElem = MyList_getNext(srcIt);
 			if (dstElem == srcElem) {

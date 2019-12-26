@@ -5,7 +5,7 @@
 #include <string.h>
 
 struct _SymTable_ {
-	ListHead head;
+	MyListHead head;
 	int type;
 };
 typedef struct _SymTable_* SymTable;
@@ -19,7 +19,7 @@ SymTable createSymTable(FieldType type) {
 	return table;
 }
 
-ListHead symTableList;
+MyListHead symTableList;
 SymTable globalSymTable;
 SymTable curSymTable;
 
@@ -38,7 +38,7 @@ void pushSymTable(SymTable table) {
 
 SymTable popSymTable() {
 	SymTable table = (SymTable)MyList_pop(symTableList);
-	ListIterator handlerIt = MyList_createReverseIterator(symTableList);
+	MyListIterator handlerIt = MyList_createReverseIterator(symTableList);
 	curSymTable = (SymTable)MyList_getPrev(handlerIt);
 	MyList_destroyIterator(handlerIt);
 	return table;
@@ -60,7 +60,7 @@ void insertSym(SymTable table, Sym sym) {
 }
 
 Sym findSym(SymTable table, const char* name) {
-	ListIterator handlerIt = MyList_createIterator(table->head);
+	MyListIterator handlerIt = MyList_createIterator(table->head);
 	Sym res = NULL;
 	while (MyList_hasNext(handlerIt)) {
 		Sym sym = (Sym)MyList_getNext(handlerIt);
@@ -74,7 +74,7 @@ Sym findSym(SymTable table, const char* name) {
 }
 
 Sym findSym_all(const char* name) {
-	ListIterator handlerIt = MyList_createReverseIterator(symTableList);
+	MyListIterator handlerIt = MyList_createReverseIterator(symTableList);
 	Sym res = NULL;
 	while (MyList_hasPrev(handlerIt)) {
 		SymTable table = (SymTable)MyList_getPrev(handlerIt);
@@ -94,7 +94,7 @@ void initSymTable() {
 
 void printSymTable() {
 	printf("symbal tables:\n");
-	ListIterator handlerIt = MyList_createIterator(symTableList);
+	MyListIterator handlerIt = MyList_createIterator(symTableList);
 	while (MyList_hasNext(handlerIt)) {
 		SymTable table = (SymTable)MyList_getNext(handlerIt);
 		printf("\tsymtable: ");
@@ -105,7 +105,7 @@ void printSymTable() {
 		}
 		printf("\n");
 
-		ListIterator it2 = MyList_createIterator(table->head);
+		MyListIterator it2 = MyList_createIterator(table->head);
 		while (MyList_hasNext(it2)) {
 			Sym sym = (Sym)MyList_getNext(it2);
 			printf("\t\tsymbal %s, type: %s, type size: %d, offset: %d\n", sym->name, sym->type->name, sym->type->size, sym->offset);
