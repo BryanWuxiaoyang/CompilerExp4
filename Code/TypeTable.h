@@ -192,7 +192,7 @@ void printTypeTable() {
 				MyListIterator it3 = MyList_createIterator(type->u.fieldList);
 				while (MyList_hasNext(it3)) {
 					Sym sym = (Sym)MyList_getNext(it3);
-					printf("\t\t\tsymbal %s, type %s, offset %d\n", sym->name, sym->type->name, sym->offset);
+					printf("\t\t\tsymbol %s, type %s, offset %d\n", sym->name, sym->type->name, sym->offset);
 				}
 				MyList_destroyIterator(it3);
 			}

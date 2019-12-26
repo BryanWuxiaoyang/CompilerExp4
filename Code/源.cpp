@@ -2,81 +2,81 @@
 #include "SemanticAnalysis.h"
 #include "RegisterSet.h"
 #include "StackFrame.h"
-#include "SymbalOps.h"
+#include "SymbolOps.h"
 #include <assert.h>
 
 
 void add(const char* x, const char* y, const char* z, RegisterSet regSet, StackFrame frame) {
-	Symbal xVariable = StackFrame_get(frame, x);
-	Symbal yVariable = StackFrame_get(frame, y);
-	Symbal zVariable = StackFrame_get(frame, z);
-	Symbal xReg = RegisterSet_getByName(regSet, "s0");
-	Symbal yReg = RegisterSet_getByName(regSet, "s1");
-	Symbal zReg = RegisterSet_getByName(regSet, "s2");
+	Symbol xVariable = StackFrame_get(frame, x);
+	Symbol yVariable = StackFrame_get(frame, y);
+	Symbol zVariable = StackFrame_get(frame, z);
+	Symbol xReg = RegisterSet_getByName(regSet, "s0");
+	Symbol yReg = RegisterSet_getByName(regSet, "s1");
+	Symbol zReg = RegisterSet_getByName(regSet, "s2");
 
-	int xOffset = Variable_getOffset(Symbal_getVariable(xVariable));
-	int yOffset = Variable_getOffset(Symbal_getVariable(yVariable));
-	int zOffset = Variable_getOffset(Symbal_getVariable(zVariable));
-	Symbal baseReg = StackFrame_getBaseRegister(frame);
+	int xOffset = Variable_getOffset(Symbol_getVariable(xVariable));
+	int yOffset = Variable_getOffset(Symbol_getVariable(yVariable));
+	int zOffset = Variable_getOffset(Symbol_getVariable(zVariable));
+	Symbol baseReg = StackFrame_getBaseRegister(frame);
 
-	printf("lw $%s, %d($%s)\n", Symbal_getName(yReg), yOffset, Symbal_getName(baseReg));
-	printf("lw $%s, %d($%s)\n", Symbal_getName(zReg), zOffset, Symbal_getName(baseReg));
+	printf("lw $%s, %d($%s)\n", Symbol_getName(yReg), yOffset, Symbol_getName(baseReg));
+	printf("lw $%s, %d($%s)\n", Symbol_getName(zReg), zOffset, Symbol_getName(baseReg));
 
-	printf("add $%s, $%s, $%s\n", Symbal_getName(xReg), Symbal_getName(yReg), Symbal_getName(zReg));
+	printf("add $%s, $%s, $%s\n", Symbol_getName(xReg), Symbol_getName(yReg), Symbol_getName(zReg));
 
-	printf("sw $%s, %d($%s)\n", Symbal_getName(xReg), xOffset, Symbal_getName(baseReg));
+	printf("sw $%s, %d($%s)\n", Symbol_getName(xReg), xOffset, Symbol_getName(baseReg));
 }
 
 void add2(const char* x, const char* y, const char* z, RegisterSet regSet, StackFrame frame) {
-	Symbal xVariable = StackFrame_get(frame, x);
-	Symbal yVariable = StackFrame_get(frame, y);
-	Symbal zVariable = StackFrame_get(frame, z);
+	Symbol xVariable = StackFrame_get(frame, x);
+	Symbol yVariable = StackFrame_get(frame, y);
+	Symbol zVariable = StackFrame_get(frame, z);
 
 	List forbidList = List_constructor();
-	Symbal xReg = RegisterSet_alloc(regSet, xVariable);
+	Symbol xReg = RegisterSet_alloc(regSet, xVariable);
 
 	List_add(forbidList, xReg);
-	Symbal yReg = RegisterSet_allocWithForbid(regSet, yVariable, forbidList);
+	Symbol yReg = RegisterSet_allocWithForbid(regSet, yVariable, forbidList);
 
 	List_add(forbidList, yReg);
-	Symbal zReg = RegisterSet_allocWithForbid(regSet, zVariable, forbidList);
+	Symbol zReg = RegisterSet_allocWithForbid(regSet, zVariable, forbidList);
 
-	Symbal baseReg = StackFrame_getBaseRegister(frame);
-	if (Symbal_findLinkedSymbal(yReg, yVariable) == 0) {
-		SymbalOps_load(yReg, yVariable);
-		printf("lw %s, %d(%s)\n", Symbal_getName(yReg), Variable_getOffset(Symbal_getVariable(yVariable)), Symbal_getName(baseReg));
+	Symbol baseReg = StackFrame_getBaseRegister(frame);
+	if (Symbol_findLinkedSymbol(yReg, yVariable) == 0) {
+		SymbolOps_load(yReg, yVariable);
+		printf("lw %s, %d(%s)\n", Symbol_getName(yReg), Variable_getOffset(Symbol_getVariable(yVariable)), Symbol_getName(baseReg));
 	}
-	if (Symbal_findLinkedSymbal(zReg, zVariable) == 0) {
-		SymbalOps_load(zReg, zVariable);
-		printf("lw %s, %d(%s)\n", Symbal_getName(zReg), Variable_getOffset(Symbal_getVariable(zVariable)), Symbal_getName(baseReg));
+	if (Symbol_findLinkedSymbol(zReg, zVariable) == 0) {
+		SymbolOps_load(zReg, zVariable);
+		printf("lw %s, %d(%s)\n", Symbol_getName(zReg), Variable_getOffset(Symbol_getVariable(zVariable)), Symbol_getName(baseReg));
 	}
 
-	int xOffset = Variable_getOffset(Symbal_getVariable(xVariable));
-	int yOffset = Variable_getOffset(Symbal_getVariable(yVariable));
-	int zOffset = Variable_getOffset(Symbal_getVariable(zVariable));
+	int xOffset = Variable_getOffset(Symbol_getVariable(xVariable));
+	int yOffset = Variable_getOffset(Symbol_getVariable(yVariable));
+	int zOffset = Variable_getOffset(Symbol_getVariable(zVariable));
 
-	SymbalOps_assign(xReg, xVariable, yReg, zReg);
-	printf("add %s, %s, %s\n", Symbal_getName(xReg), Symbal_getName(yReg), Symbal_getName(zReg));
+	SymbolOps_assign(xReg, xVariable, yReg, zReg);
+	printf("add %s, %s, %s\n", Symbol_getName(xReg), Symbol_getName(yReg), Symbol_getName(zReg));
 
-	SymbalOps_save(xVariable, xReg);
-	printf("sw %s, %d(%s)\n", Symbal_getName(xReg), xOffset, Symbal_getName(baseReg));
+	SymbolOps_save(xVariable, xReg);
+	printf("sw %s, %d(%s)\n", Symbol_getName(xReg), xOffset, Symbol_getName(baseReg));
 }
 
 void assign(const char* x, const char* y, RegisterSet regSet, StackFrame frame) {
-	Symbal xVariable = StackFrame_get(frame, x);
-	Symbal yVariable = StackFrame_get(frame, y);
-	Symbal xReg = RegisterSet_getByName(regSet, "s0");
-	Symbal yReg = RegisterSet_getByName(regSet, "s1");
-	//Symbal xReg = RegisterSet_alloc(regSet, xVariable);
-	//Symbal yReg = RegisterSet_alloc(regSet, yVariable);
+	Symbol xVariable = StackFrame_get(frame, x);
+	Symbol yVariable = StackFrame_get(frame, y);
+	Symbol xReg = RegisterSet_getByName(regSet, "s0");
+	Symbol yReg = RegisterSet_getByName(regSet, "s1");
+	//Symbol xReg = RegisterSet_alloc(regSet, xVariable);
+	//Symbol yReg = RegisterSet_alloc(regSet, yVariable);
 
-	int xOffset = Variable_getOffset(Symbal_getVariable(xVariable));
-	int yOffset = Variable_getOffset(Symbal_getVariable(yVariable));
-	Symbal baseReg = StackFrame_getBaseRegister(frame);
+	int xOffset = Variable_getOffset(Symbol_getVariable(xVariable));
+	int yOffset = Variable_getOffset(Symbol_getVariable(yVariable));
+	Symbol baseReg = StackFrame_getBaseRegister(frame);
 
-	printf("la $%s, %d($%s)\n", Symbal_getName(yReg), yOffset, Symbal_getName(baseReg));
-	printf("mov $%s, $%s\n", Symbal_getName(xReg), Symbal_getName(baseReg));
-	printf("sw $%s, %d($%s)\n", Symbal_getName(xReg), xOffset, Symbal_getName(baseReg));
+	printf("la $%s, %d($%s)\n", Symbol_getName(yReg), yOffset, Symbol_getName(baseReg));
+	printf("mov $%s, $%s\n", Symbol_getName(xReg), Symbol_getName(baseReg));
+	printf("sw $%s, %d($%s)\n", Symbol_getName(xReg), xOffset, Symbol_getName(baseReg));
 }
 
 int main() {
@@ -88,13 +88,13 @@ int main() {
 	printInterCodeList(NULL, NULL);*/
 
 	RegisterSet regSet = RegisterSet_constructor();
-	Symbal baseReg = RegisterSet_getByName(regSet, "fp");
+	Symbol baseReg = RegisterSet_getByName(regSet, "fp");
 
 	StackFrame frame = StackFrame_constructor(baseReg);
 
-	Symbal x = Symbal_constructor(SymbalType_Variable, "x", Variable_constructor(VariableType_Local, frame, -4));
-	Symbal y = Symbal_constructor(SymbalType_Variable, "y", Variable_constructor(VariableType_Local, frame, 0));
-	Symbal z = Symbal_constructor(SymbalType_Variable, "z", Variable_constructor(VariableType_Local, frame, 4));
+	Symbol x = Symbol_constructor(SymbolType_Variable, "x", Variable_constructor(VariableType_Local, frame, -4));
+	Symbol y = Symbol_constructor(SymbolType_Variable, "y", Variable_constructor(VariableType_Local, frame, 0));
+	Symbol z = Symbol_constructor(SymbolType_Variable, "z", Variable_constructor(VariableType_Local, frame, 4));
 	StackFrame_add(frame, x);
 	StackFrame_add(frame, y);
 	StackFrame_add(frame, z);

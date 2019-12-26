@@ -4,7 +4,8 @@
     #include "lex.yy.c"
     #include "SemanticAnalysis.h"
    #include "IntermediateLanguage.h"
-    #include "LinearOptimize.h"
+    //#include "LinearOptimize.h"
+    #include "ObjectCode.h"
 
     void yyerror(char* msg);
     Node nodeBuffer[8];
@@ -387,6 +388,7 @@ int main(int argc,char** argv){
         return 1;
     FILE* f=fopen(argv[1],"r");
     FILE* fout=fopen(argv[2],"w");
+    FILE* finter=fopen("inter.ir","w");
     if(!f)
     {
         printf("Error Open File!\n");
@@ -400,8 +402,12 @@ int main(int argc,char** argv){
         //fclose(file);
         semAnalysis(nodeBuffer[0]);
         //printInterCodeList(NULL,NULL);
-        optimizeInterCodeLinear();
-        printInterCodeList(fout, NULL);
+        //optimizeInterCodeLinear();
+        printInterCodeList(finter, NULL);
+        fclose(finter);
+        objectCodeGen(fout,0);
     }
+    fclose(f);
+    fclose(fout);
     return 0;
 }

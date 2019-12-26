@@ -118,7 +118,7 @@ void printFuncTable() {
 		MyListIterator it2 = MyList_createIterator(func->paramList);
 		while (MyList_hasNext(it2)) {
 			Sym sym = (Sym)MyList_getNext(it2);
-			printf("\t\tsymbal %s, type %s, offset %d\n", sym->name, sym->type->name, sym->offset);
+			printf("\t\tsymbol %s, type %s, offset %d\n", sym->name, sym->type->name, sym->offset);
 		}
 		MyList_destroyIterator(it2);
 	}

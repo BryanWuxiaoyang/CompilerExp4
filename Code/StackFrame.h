@@ -1,42 +1,42 @@
 #pragma once
-#include "Symbal.h"
+#include "Symbol.h"
 #include <string.h>
 #include <stdlib.h>
 
 struct _StackFrame_ {
-	Symbal baseReg;
+	Symbol baseReg;
 
-	List symbalList;
+	List symbolList;
 };
 typedef struct _StackFrame_* StackFrame;
 
-StackFrame StackFrame_constructor(Symbal baseReg) {
-	assert(baseReg->type == SymbalType_Register);
+StackFrame StackFrame_constructor(Symbol baseReg) {
+	assert(baseReg->type == SymbolType_Register);
 	StackFrame frame = (StackFrame)malloc(sizeof(struct _StackFrame_));
 	if (frame != NULL) {
 		frame->baseReg = baseReg;
-		frame->symbalList = List_constructor();
+		frame->symbolList = List_constructor();
 	}
 	return frame;
 }
 
-void StackFrame_add(StackFrame frame, Symbal variable) {
-	assert(variable->type == SymbalType_Variable);
-	List_add(frame->symbalList, variable);
+void StackFrame_add(StackFrame frame, Symbol variable) {
+	assert(variable->type == SymbolType_Variable);
+	List_add(frame->symbolList, variable);
 }
 
-void StackFrame_remove(StackFrame frame, Symbal variable) {
-	assert(variable->type == SymbalType_Variable);
-	List_remove(frame->symbalList, variable);
+void StackFrame_remove(StackFrame frame, Symbol variable) {
+	assert(variable->type == SymbolType_Variable);
+	List_remove(frame->symbolList, variable);
 }
 
-Symbal StackFrame_get(StackFrame frame, const char* name) {
-	Symbal result = NULL;
-	ListIterator it = ListIterator_constructor(frame->symbalList);
+Symbol StackFrame_get(StackFrame frame, const char* name) {
+	Symbol result = NULL;
+	ListIterator it = ListIterator_constructor(frame->symbolList);
 	while (ListIterator_hasNext(it)) {
-		Symbal symbal = (Symbal)ListIterator_next(it);
-		if (strcmp(symbal->name, name) == 0) {
-			result = symbal;
+		Symbol symbol = (Symbol)ListIterator_next(it);
+		if (strcmp(symbol->name, name) == 0) {
+			result = symbol;
 			break;
 		}
 	}
@@ -44,6 +44,6 @@ Symbal StackFrame_get(StackFrame frame, const char* name) {
 	return result;
 }
 
-Symbal StackFrame_getBaseRegister(StackFrame frame) {
+Symbol StackFrame_getBaseRegister(StackFrame frame) {
 	return frame->baseReg;
 }

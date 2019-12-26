@@ -12,3 +12,4 @@ enum RegisterType {
 	RegisterType_FramePointer,
 	RegisterType_ReturnAddress
 };
+typedef enum RegisterType RegisterType;

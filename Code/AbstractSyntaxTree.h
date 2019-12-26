@@ -633,7 +633,7 @@ void printASTNode(ASTNode node) {
 	switch (node->type) {
 	case AST_INTEGER:	printf("integer: %s", itostr(node->value.intValue)); break;
 	case AST_FLOAT:		printf("float: %s", ftostr(node->value.floatValue)); break;
-	case AST_SYM:		printf("symbal: %s --> var: %s", node->value.sym->name, node->name); break;
+	case AST_SYM:		printf("symbol: %s --> var: %s", node->value.sym->name, node->name); break;
 	case AST_FUNC:		printf("func: %s --> return var: %s", node->value.func->name, node->name); break;
 	case AST_OP:		printf("op: %d --> var: %s, lc: %s, rc: %s", node->value.op, node->name, getASTNodeStr_r(node->lc), getASTNodeStr_r(node->rc)); break;
 	default:			printf("error!"); assert(0);

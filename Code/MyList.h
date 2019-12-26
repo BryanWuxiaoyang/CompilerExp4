@@ -15,7 +15,7 @@ struct _MyListIterator_ {
 	MyListNode next;
 	MyListNode prev;
 };
-typedef struct _MyListIterator_* MyListIterator;
+typedef struct  _MyListIterator_* MyListIterator;
 
 MyListIterator MyList_createIterator(MyListHead head) {
 	MyListIterator handlerIt = (MyListIterator)malloc(sizeof(struct _MyListIterator_));

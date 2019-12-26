@@ -5,3 +5,4 @@ enum VariableType {
 	VariableType_Intermediate,
 	VariableType_Register
 };
+typedef enum VariableType VariableType;
