@@ -18,7 +18,7 @@ MyRegs myRegs[3];
 
 void push(int* sp,char* reg, int space){
     if(reg!=NULL)
-        fprintf(objectCodeFile,"sw $%s, $sp\n",reg);
+        fprintf(objectCodeFile,"sw $%s, 0($sp)\n",reg);
     fprintf(objectCodeFile,"addi $sp, $sp, -%d\n",space);
     *sp=*sp-space;
 }
@@ -81,21 +81,22 @@ void singleCodeGen(char* target,char* arg1,char* arg2,ILOP op,int* sp){
     int offset;
     switch(op){
         case ILOP_LABEL:
-            fprintf(objectCodeFile,"$%s:\n",target);
+            fprintf(objectCodeFile,"%s:\n",target);
             break;
         case ILOP_FUNCTION:
             baseReg = RegisterSet_getByName(regSet, "fp");
             stackFrame=StackFrame_constructor(baseReg);
             currentArg=0;
             *sp=0;
-            fprintf(objectCodeFile,"$%s:\n",target);
+            fprintf(objectCodeFile,"\n%s:\n",target);
             push(sp,"fp",4);
+            fprintf(objectCodeFile,"addi $fp, $sp, 4\n");
             break;
         case ILOP_ASSIGN:
             if(arg1[0]!='*'&&target[0]!='*'){          
                 if(arg1[0]=='#'){
                     reg1=getReg(sp,target,0);
-                    fprintf(objectCodeFile,"li $%s, $%s\n",reg1,arg1+1);
+                    fprintf(objectCodeFile,"li $%s, %s\n",reg1,arg1+1);
                     writeBack(reg1,target);
                 }
                 else{
@@ -150,7 +151,7 @@ void singleCodeGen(char* target,char* arg1,char* arg2,ILOP op,int* sp){
             else if(arg2[0]=='#'){
                 reg1=getReg(sp,target,0);
                 reg2=getReg(sp,arg1,1);
-                fprintf(objectCodeFile,"addi $%s, $%s, -%s\n",reg1,reg2,arg2+1);
+                fprintf(objectCodeFile,"addi $%s, $%s, %d\n",reg1,reg2,-atoi(arg2+1));
                 writeBack(reg1,target);
             }
             else{
@@ -176,7 +177,7 @@ void singleCodeGen(char* target,char* arg1,char* arg2,ILOP op,int* sp){
                 fprintf(objectCodeFile,"li $%s, %s\n",reg3,arg2+1);
             }
             else
-                reg3=getReg(sp,arg1,1);
+                reg3=getReg(sp,arg2,1);
             fprintf(objectCodeFile,"mul $%s, $%s, $%s\n",reg1,reg2,reg3);
             writeBack(reg1,target);
             break;
@@ -195,7 +196,7 @@ void singleCodeGen(char* target,char* arg1,char* arg2,ILOP op,int* sp){
                 fprintf(objectCodeFile,"li $%s, %s\n",reg3,arg2+1);
             }
             else
-                reg3=getReg(sp,arg1,1);
+                reg3=getReg(sp,arg2,1);
             fprintf(objectCodeFile,"div $%s, $%s\n",reg2,reg3);
             fprintf(objectCodeFile,"mflo $%s\n",reg1);
             writeBack(reg1,target);
@@ -210,41 +211,119 @@ void singleCodeGen(char* target,char* arg1,char* arg2,ILOP op,int* sp){
             fprintf(objectCodeFile,"j %s\n",target);
             break;
         case ILOP_IF_G:
-            reg1=getReg(sp,arg1,1);
-            reg2=getReg(sp,arg2,1);
+            if(arg1[0]=='#')
+            {
+                reg1=getReg(sp,NULL,0);
+                fprintf(objectCodeFile,"li $%s, %s\n",reg1,arg1+1);
+            }
+            else
+                reg1=getReg(sp,arg1,1);
+            if(arg2[0]=='#')
+            {
+                reg2=getReg(sp,NULL,0);
+                fprintf(objectCodeFile,"li $%s, %s\n",reg2,arg2+1);
+            }
+            else
+                reg2=getReg(sp,arg2,1);
             fprintf(objectCodeFile,"bgt $%s, $%s, %s\n",reg1,reg2,target);
             break;
         case ILOP_IF_GE:
-            reg1=getReg(sp,arg1,1);
-            reg2=getReg(sp,arg2,1);
+            if(arg1[0]=='#')
+            {
+                reg1=getReg(sp,NULL,0);
+                fprintf(objectCodeFile,"li $%s, %s\n",reg1,arg1+1);
+            }
+            else
+                reg1=getReg(sp,arg1,1);
+            if(arg2[0]=='#')
+            {
+                reg2=getReg(sp,NULL,0);
+                fprintf(objectCodeFile,"li $%s, %s\n",reg2,arg2+1);
+            }
+            else
+                reg2=getReg(sp,arg2,1);
             fprintf(objectCodeFile,"bge $%s, $%s, %s\n",reg1,reg2,target);
             break;
         case ILOP_IF_E:
-            reg1=getReg(sp,arg1,1);
-            reg2=getReg(sp,arg2,1);
+            if(arg1[0]=='#')
+            {
+                reg1=getReg(sp,NULL,0);
+                fprintf(objectCodeFile,"li $%s, %s\n",reg1,arg1+1);
+            }
+            else
+                reg1=getReg(sp,arg1,1);
+            if(arg2[0]=='#')
+            {
+                reg2=getReg(sp,NULL,0);
+                fprintf(objectCodeFile,"li $%s, %s\n",reg2,arg2+1);
+            }
+            else
+                reg2=getReg(sp,arg2,1);
             fprintf(objectCodeFile,"beq $%s, $%s, %s\n",reg1,reg2,target);
             break;
         case ILOP_IF_NE:
-            reg1=getReg(sp,arg1,1);
-            reg2=getReg(sp,arg2,1);
+            if(arg1[0]=='#')
+            {
+                reg1=getReg(sp,NULL,0);
+                fprintf(objectCodeFile,"li $%s, %s\n",reg1,arg1+1);
+            }
+            else
+                reg1=getReg(sp,arg1,1);
+            if(arg2[0]=='#')
+            {
+                reg2=getReg(sp,NULL,0);
+                fprintf(objectCodeFile,"li $%s, %s\n",reg2,arg2+1);
+            }
+            else
+                reg2=getReg(sp,arg2,1);
             fprintf(objectCodeFile,"bne $%s, $%s, %s\n",reg1,reg2,target);
             break;
         case ILOP_IF_L:
-            reg1=getReg(sp,arg1,1);
-            reg2=getReg(sp,arg2,1);
+            if(arg1[0]=='#')
+            {
+                reg1=getReg(sp,NULL,0);
+                fprintf(objectCodeFile,"li $%s, %s\n",reg1,arg1+1);
+            }
+            else
+                reg1=getReg(sp,arg1,1);
+            if(arg2[0]=='#')
+            {
+                reg2=getReg(sp,NULL,0);
+                fprintf(objectCodeFile,"li $%s, %s\n",reg2,arg2+1);
+            }
+            else
+                reg2=getReg(sp,arg2,1);
             fprintf(objectCodeFile,"blt $%s, $%s, %s\n",reg1,reg2,target);
             break;
         case ILOP_IF_LE:
-            reg1=getReg(sp,arg1,1);
-            reg2=getReg(sp,arg2,1);
+            if(arg1[0]=='#')
+            {
+                reg1=getReg(sp,NULL,0);
+                fprintf(objectCodeFile,"li $%s, %s\n",reg1,arg1+1);
+            }
+            else
+                reg1=getReg(sp,arg1,1);
+            if(arg2[0]=='#')
+            {
+                reg2=getReg(sp,NULL,0);
+                fprintf(objectCodeFile,"li $%s, %s\n",reg2,arg2+1);
+            }
+            else
+                reg2=getReg(sp,arg2,1);
             fprintf(objectCodeFile,"ble $%s, $%s, %s\n",reg1,reg2,target);
             break;
         case ILOP_RETURN:
-            reg1=getReg(sp,target,1);
+            if(target[0]=='#')
+            {
+                reg1=getReg(sp,NULL,0);
+                fprintf(objectCodeFile,"li $%s, %s\n",reg1,target+1);
+            }
+            else
+                reg1=getReg(sp,target,1);
             fprintf(objectCodeFile,"move $v0, $%s\n",reg1);
             fprintf(objectCodeFile,"move $sp, $fp\n");//sp=fp，恢复栈顶
             fprintf(objectCodeFile,"lw $fp, 0($fp)\n");//fp=*fp，fp指向的位置存放旧fp
-            fprintf(objectCodeFile,"jr $ra\n\n");//注意在call时保存ra
+            fprintf(objectCodeFile,"jr $ra\n");//注意在call时保存ra
             break;
         case ILOP_DEC:
             loginVar(target,atoi(arg1));
@@ -268,21 +347,27 @@ void singleCodeGen(char* target,char* arg1,char* arg2,ILOP op,int* sp){
         case ILOP_CALL:
             push(sp,"ra",4);
             fprintf(objectCodeFile,"jal %s\n",arg1);
+            fprintf(objectCodeFile,"lw $ra, 4($sp)\n");
             reg1=getReg(sp,target,0);
             fprintf(objectCodeFile,"move $%s, $v0\n",reg1);
             writeBack(reg1,target);
-            fprintf(objectCodeFile,"lw $ra, 4($sp)\n");
             break;
         case ILOP_READ:
+            reg1=getReg(sp,target,0);
             push(sp,"ra",4);
             fprintf(objectCodeFile,"jal read\n");
-            reg1=getReg(sp,target,0);
             fprintf(objectCodeFile,"move $%s, $v0\n",reg1);
             writeBack(reg1,target);
             fprintf(objectCodeFile,"lw $ra, 4($sp)\n");
             break;
         case ILOP_WRITE:
-            reg1=getReg(sp,target,1);
+            if(target[0]=='#')
+            {
+                reg1=getReg(sp,NULL,0);
+                fprintf(objectCodeFile,"li $%s, %s\n",reg1,target+1);
+            }
+            else
+                reg1=getReg(sp,target,1);
             fprintf(objectCodeFile,"move $a0, $%s\n",reg1);
             push(sp,"ra",4);
             fprintf(objectCodeFile,"jal write\n");
@@ -295,19 +380,23 @@ void printSomeGarbage(){
     fprintf(objectCodeFile,".data\n");
     fprintf(objectCodeFile,"_prompt: .asciiz \"Enter an integer:\"\n");
     fprintf(objectCodeFile,"_ret: .asciiz \"\\n\"\n");
-    fprintf(objectCodeFile,"./globl main\n");
+    fprintf(objectCodeFile,".globl main\n");
     fprintf(objectCodeFile,".text\n");
     fprintf(objectCodeFile,"read:\n");
     fprintf(objectCodeFile,"li $v0, 4\n");
     fprintf(objectCodeFile,"la $a0, _prompt\n");
     fprintf(objectCodeFile,"syscall\n");
+    fprintf(objectCodeFile,"li $v0, 5\n");
+    fprintf(objectCodeFile,"syscall\n");
     fprintf(objectCodeFile,"jr $ra\n\n");
     fprintf(objectCodeFile,"write:\n");
+    fprintf(objectCodeFile,"li $v0, 1\n");
+    fprintf(objectCodeFile,"syscall\n");
     fprintf(objectCodeFile,"li $v0, 4\n");
     fprintf(objectCodeFile,"la $a0, _ret\n");
     fprintf(objectCodeFile,"syscall\n");
     fprintf(objectCodeFile,"move $v0, $0\n");
-    fprintf(objectCodeFile,"jr $ra\n\n");
+    fprintf(objectCodeFile,"jr $ra\n");
 }
 
 void objectCodeGen(FILE* file,int base){
@@ -317,7 +406,7 @@ void objectCodeGen(FILE* file,int base){
     strcpy(myRegs[2].name,"t2");
     objectCodeFile=file;
     printSomeGarbage();
- 
+    regSet=RegisterSet_constructor();
     MyListIterator it = MyList_createIterator(interCodeList);
     while(MyList_hasNext(it)){
         InterCode code=(InterCode)MyList_getNext(it);

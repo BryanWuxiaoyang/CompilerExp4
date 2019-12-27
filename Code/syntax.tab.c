@@ -2521,8 +2521,12 @@ void yyerror(char* msg){
 int main(int argc,char** argv){
     if(argc<=1)
         return 1;
+    FILE* fout;
+    if(argc==2)
+        fout=fopen("out.txt","w");
+    else
+        fout=fopen(argv[2],"w");
     FILE* f=fopen(argv[1],"r");
-    FILE* fout=fopen(argv[2],"w");
     FILE* finter=fopen("inter.ir","w");
     if(!f)
     {
