@@ -20,7 +20,7 @@ int main()
 {
     int m,result;
     m=read();
-    result=fact(m);
+    result=fact(5);
     write(result);
     return 0;
 }

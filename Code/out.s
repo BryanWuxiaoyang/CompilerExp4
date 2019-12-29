@@ -112,7 +112,7 @@ addi $sp, $sp, -4
 lw $t1, -4($fp)
 move $t0, $t1
 sw $t0, -12($fp)
-lw $t0, -12($fp)
+li $t0, 5
 sw $t0, 0($sp)
 addi $sp, $sp, -4
 sw $ra, 0($sp)

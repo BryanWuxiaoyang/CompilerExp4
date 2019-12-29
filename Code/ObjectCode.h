@@ -345,13 +345,17 @@ void singleCodeGen(char* target,char* arg1,char* arg2,ILOP op,int* sp){
             push(sp,NULL,atoi(arg1));
             break;
         case ILOP_ARG:
-            if(target[0]!='&')
-                reg1=getReg(sp,target,1);
-            else{
+            if(target[0]=='#'){
+                reg1=getReg(sp,NULL,0);
+                fprintf(objectCodeFile,"li $%s, %s\n",reg1,target+1);
+            }
+            else if(target[0]=='&'){
                 offset=getOffset(target+1);
                 reg1=getReg(sp,NULL,0);
                 fprintf(objectCodeFile,"addi $%s, $fp, %d\n",reg1,offset);
             }
+            else
+                reg1=getReg(sp,target,1);
             push(sp,reg1,4);
             break;
         case ILOP_PARAM:

@@ -27,7 +27,7 @@ RETURN v4
 FUNCTION main :
 READ t10
 v5 := t10
-ARG v5
+ARG #5
 t11 := CALL fact
 v6 := t11
 WRITE v6
