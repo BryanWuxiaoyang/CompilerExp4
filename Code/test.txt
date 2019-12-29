@@ -1,18 +1,26 @@
 int fact(int n)
 {
-    if(n==1)
-        return n;
-    else
-        return (n*fact(n-1));
+    int i,a[10],ans;
+    i=0;
+    ans=0;
+    while(i<n)
+    {
+        a[i]=i;
+        i=i+1;
+    }
+    i=0;
+    while(i<n)
+    {
+        ans=ans+a[i];
+        i=i+1;
+    }
+    return ans;
 }
 int main()
 {
     int m,result;
     m=read();
-    if(m>1)
-        result=fact(m);
-    else 
-        result=1;
+    result=fact(m);
     write(result);
     return 0;
 }

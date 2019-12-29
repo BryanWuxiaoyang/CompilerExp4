@@ -51,6 +51,10 @@ char* getReg(int* sp,char* var,int isLoad){
         if(var[0]=='&'){
             int offset=getOffset(var+1);
             fprintf(objectCodeFile,"addi $%s, $fp, %d\n",ret,offset);
+        }else if(var[0]=='*'){
+            int offset=getOffset(var+1);
+            fprintf(objectCodeFile,"lw $t4, %d($fp)\n",offset);
+            fprintf(objectCodeFile,"lw $%s, 0($t4)\n",ret);
         }else{
             int offset=getOffset(var);
             fprintf(objectCodeFile,"lw $%s, %d($fp)\n",ret,offset);
@@ -58,7 +62,7 @@ char* getReg(int* sp,char* var,int isLoad){
         return ret;
     }
     else{
-        if(getOffset(var)==FAIL){
+        if(var[0]!='*'&&getOffset(var)==FAIL){
             loginVar(var,*sp);
             push(sp,NULL,4);
         }
@@ -67,8 +71,14 @@ char* getReg(int* sp,char* var,int isLoad){
 }
 
 void writeBack(char* reg,char* var){
-    int offset=getOffset(var);
-    fprintf(objectCodeFile,"sw $%s, %d($fp)\n",reg,offset);
+    if(var[0]!='*'){
+        int offset=getOffset(var);
+        fprintf(objectCodeFile,"sw $%s, %d($fp)\n",reg,offset);
+    }else{
+        int offset=getOffset(var+1);
+        fprintf(objectCodeFile,"lw $t4, %d($fp)\n",offset);
+        fprintf(objectCodeFile,"sw $%s, 0($t4)\n",reg);
+    }
 }
 
 int currentArg;
@@ -114,7 +124,12 @@ void singleCodeGen(char* target,char* arg1,char* arg2,ILOP op,int* sp){
             }
             else if(target[0]=='*'){
                 reg1=getReg(sp,target+1,1);
-                reg2=getReg(sp,arg1,1);
+                if(arg1[0]=='#'){
+                    reg2=getReg(sp,NULL,0);
+                    fprintf(objectCodeFile,"li $%s, %s\n",reg2,arg1+1);
+                }
+                else
+                    reg2=getReg(sp,arg1,1);
                 fprintf(objectCodeFile,"sw $%s, 0($%s)\n",reg2,reg1);
             }
             break;
@@ -157,7 +172,7 @@ void singleCodeGen(char* target,char* arg1,char* arg2,ILOP op,int* sp){
             else{
                 reg1=getReg(sp,target,0);
                 reg2=getReg(sp,arg1,1);
-                reg3=getReg(sp,arg2,0);
+                reg3=getReg(sp,arg2,1);
                 fprintf(objectCodeFile,"sub $%s, $%s, $%s\n",reg1,reg2,reg3);
                 writeBack(reg1,target);
             }
@@ -333,11 +348,10 @@ void singleCodeGen(char* target,char* arg1,char* arg2,ILOP op,int* sp){
             if(target[0]!='&')
                 reg1=getReg(sp,target,1);
             else{
-                offset=getOffset(target);
+                offset=getOffset(target+1);
                 reg1=getReg(sp,NULL,0);
                 fprintf(objectCodeFile,"addi $%s, $fp, %d\n",reg1,offset);
             }
-            fprintf(objectCodeFile,"sw $%s, %d($fp)\n",reg1,*sp);
             push(sp,reg1,4);
             break;
         case ILOP_PARAM:
@@ -356,9 +370,9 @@ void singleCodeGen(char* target,char* arg1,char* arg2,ILOP op,int* sp){
             reg1=getReg(sp,target,0);
             push(sp,"ra",4);
             fprintf(objectCodeFile,"jal read\n");
+            fprintf(objectCodeFile,"lw $ra, 4($sp)\n");
             fprintf(objectCodeFile,"move $%s, $v0\n",reg1);
             writeBack(reg1,target);
-            fprintf(objectCodeFile,"lw $ra, 4($sp)\n");
             break;
         case ILOP_WRITE:
             if(target[0]=='#')

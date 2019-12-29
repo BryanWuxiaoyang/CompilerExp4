@@ -24,42 +24,78 @@ fact:
 sw $fp, 0($sp)
 addi $sp, $sp, -4
 addi $fp, $sp, 4
-lw $t0, 8($fp)
-li $t1, 1
-bne $t0, $t1, L2
-lw $t0, 8($fp)
-move $v0, $t0
-move $sp, $fp
-lw $fp, 0($fp)
-jr $ra
-j L3
-L2:
+addi $sp, $sp, -40
 addi $sp, $sp, -4
+li $t0, 0
+sw $t0, -44($fp)
+addi $sp, $sp, -4
+li $t0, 0
+sw $t0, -48($fp)
+L1:
+lw $t0, -44($fp)
 lw $t1, 8($fp)
-addi $t0, $t1, -1
-sw $t0, -4($fp)
-lw $t0, -4($fp)
-sw $t0, -8($fp)
-sw $t0, 0($sp)
+bge $t0, $t1, L3
 addi $sp, $sp, -4
-sw $ra, 0($sp)
-addi $sp, $sp, -4
-jal fact
-lw $ra, 4($sp)
-addi $sp, $sp, -4
-move $t0, $v0
-sw $t0, -16($fp)
-addi $sp, $sp, -4
-lw $t1, 8($fp)
-lw $t2, -16($fp)
+lw $t1, -44($fp)
+li $t2, 4
 mul $t0, $t1, $t2
-sw $t0, -20($fp)
-lw $t0, -20($fp)
+sw $t0, -52($fp)
+addi $sp, $sp, -4
+addi $t1, $fp, 40
+lw $t2, -52($fp)
+add $t0, $t1, $t2
+sw $t0, -56($fp)
+lw $t0, -56($fp)
+lw $t1, -44($fp)
+sw $t1, 0($t0)
+addi $sp, $sp, -4
+lw $t1, -44($fp)
+addi $t0, $t1, 1
+sw $t0, -60($fp)
+lw $t1, -60($fp)
+move $t0, $t1
+sw $t0, -44($fp)
+j L1
+L3:
+li $t0, 0
+sw $t0, -44($fp)
+L4:
+lw $t0, -44($fp)
+lw $t1, 8($fp)
+bge $t0, $t1, L6
+addi $sp, $sp, -4
+lw $t1, -44($fp)
+li $t2, 4
+mul $t0, $t1, $t2
+sw $t0, -64($fp)
+addi $sp, $sp, -4
+addi $t1, $fp, 40
+lw $t2, -64($fp)
+add $t0, $t1, $t2
+sw $t0, -68($fp)
+addi $sp, $sp, -4
+lw $t1, -48($fp)
+lw $t4, -68($fp)
+lw $t2, 0($t4)
+add $t0, $t1, $t2
+sw $t0, -72($fp)
+lw $t1, -72($fp)
+move $t0, $t1
+sw $t0, -48($fp)
+addi $sp, $sp, -4
+lw $t1, -44($fp)
+addi $t0, $t1, 1
+sw $t0, -76($fp)
+lw $t1, -76($fp)
+move $t0, $t1
+sw $t0, -44($fp)
+j L4
+L6:
+lw $t0, -48($fp)
 move $v0, $t0
 move $sp, $fp
 lw $fp, 0($fp)
 jr $ra
-L3:
 
 main:
 sw $fp, 0($sp)
@@ -69,18 +105,14 @@ addi $sp, $sp, -4
 sw $ra, 0($sp)
 addi $sp, $sp, -4
 jal read
+lw $ra, 4($sp)
 move $t0, $v0
 sw $t0, -4($fp)
-lw $ra, 4($sp)
 addi $sp, $sp, -4
 lw $t1, -4($fp)
 move $t0, $t1
 sw $t0, -12($fp)
 lw $t0, -12($fp)
-li $t1, 1
-ble $t0, $t1, L5
-lw $t0, -12($fp)
-sw $t0, -16($fp)
 sw $t0, 0($sp)
 addi $sp, $sp, -4
 sw $ra, 0($sp)
@@ -94,11 +126,6 @@ addi $sp, $sp, -4
 lw $t1, -24($fp)
 move $t0, $t1
 sw $t0, -28($fp)
-j L6
-L5:
-li $t0, 1
-sw $t0, -28($fp)
-L6:
 lw $t0, -28($fp)
 move $a0, $t0
 sw $ra, 0($sp)
